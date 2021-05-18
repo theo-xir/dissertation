@@ -14,7 +14,7 @@ import numpy as np
 import os
 import yaml
 from argparse import Namespace
-
+import models
 os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 
 if torch.cuda.is_available():
@@ -23,71 +23,8 @@ else:
     DEVICE = torch.device("cpu")
 
 
-def double_conv(in_channels, out_channels, padding):
-    return nn.Sequential(
-        nn.Conv2d(in_channels, out_channels, 3, padding=padding),
-       # nn.BatchNorm2d(out_channels),
-        nn.ReLU(inplace=True),
-        nn.Conv2d(out_channels, out_channels, 3, padding=padding),
-       # nn.BatchNorm2d(out_channels),
-        nn.ReLU(inplace=True)
-    )   
 
 
-class UNet(nn.Module):
-
-    def __init__(self, channels:int):
-        super().__init__()
-                
-        self.dconv_down1 = double_conv(channels, 64,1)
-        self.dconv_down2 = double_conv(64, 128,1)
-        self.dconv_down3 = double_conv(128, 256,1)
-        self.dconv_down4 = double_conv(256, 512,1)        
-
-        self.maxpool = nn.MaxPool2d(2)
-        self.upsample = nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True)        
-        
-        self.dconv_up3 = double_conv(256 + 512, 256,1)
-        self.dconv_up2 = double_conv(128 + 256, 128,1)
-        self.dconv_up1 = double_conv(128 + 64, 64,1)
-        
-        self.conv_last = nn.Conv2d(64, 1, 1)
-        
-        
-    def forward(self, x):
-        conv1 = self.dconv_down1(x)
-        # print(conv1.shape)
-        x = self.maxpool(conv1)
-
-        conv2 = self.dconv_down2(x)
-        # print(conv2.shape)
-        x = self.maxpool(conv2)
-        
-        conv3 = self.dconv_down3(x)
-        # print(conv3.shape)
-        x = self.maxpool(conv3)   
-        
-        x = self.dconv_down4(x)
-        
-        x = self.upsample(x)    
-        # print(x.shape)
-        x = torch.cat([x, conv3], dim=1)
-        
-        x = self.dconv_up3(x)
-        x = self.upsample(x)    
-        # print(x.shape)    
-        x = torch.cat([x, conv2], dim=1)       
-
-        x = self.dconv_up2(x)
-        x = self.upsample(x)   
-        # print(x.shape)     
-        x = torch.cat([x, conv1], dim=1)   
-        
-        x = self.dconv_up1(x)
-        
-        out = self.conv_last(x)
-        
-        return out
 
 #Trainer class
 class Trainer:
@@ -146,7 +83,7 @@ class Trainer:
                 data_load_end_time = time.time()
 
                 #Compute the forward pass of the model
-                logits = torch.squeeze(self.model.forward(batch))
+                logits = torch.squeeze(self.model.forward(batch, noskip=args.noskip, transconv=args.transconv))
                 # print(logits.shape)
                 # print(labels[0].shape)
                 #Compute the loss using the MSE Loss
@@ -226,7 +163,7 @@ class Trainer:
             for i, (batch, labels) in enumerate(zip(self.val_loader, self.truth_test)):
                 batch = batch[0].to(self.device)
                 labels = labels[0].to(self.device)
-                logits = torch.squeeze(self.model(batch))
+                logits = torch.squeeze(self.model(batch,noskip=args.noskip, transconv=args.transconv))
                 results["logits"].extend(logits)
                 loss = self.criterion(logits, labels)
                 total_loss += loss.item()*len(batch)
@@ -257,8 +194,8 @@ class Trainer:
         elif average_loss < self.minLoss:
             self.minLoss=average_loss
             self.minLossEpoch=epoch
-        #elif epoch - self.minLossEpoch > 50:
-        #    self.stop=True
+        elif epoch - self.minLossEpoch > 100:
+            self.stop=True
         self.summary_writer.add_scalars(
                 "loss",
                 {"test": average_loss},
@@ -277,22 +214,11 @@ def get_summary_writer_log_dir(args: argparse.Namespace) -> str:
         i += 1
     return str(tb_log_dir)
 
-def loss(logits,truth):
-    loss=0
-    #make sure it's all on the gpu, maybe give it a smaller type
-    #try unet without the connections
-    #for seeing if all channels are useful, just change the input layer
-    for i in range(len(logits)):
-        for j in range(len(logits[0])):
-            for k in range(len(logits[0,0])):
-                loss+=(variance[j,k]*((logits[i,j,k]-truth[i,j,k])**2))/(len(logits[0])*len(logits[0,0]))
-    return loss
-
 def main(args):
     assert args.samples%10==0
     print("in main")
     #load the test and training data
-    dataset, ground_truth, v = LoadData.load(args.samples, balancewind=args.balancewind, fixwind=args.fixwind, variables=args.vars)
+    dataset, ground_truth, v = LoadData.load(args.samples, balancewind=args.balancewind, fixwind=args.fixwind, variables=args.vars, timestep=args.timestep)
     np.save('groundtruth.npy', ground_truth[int(args.samples*0.8):][0])
     global variance
     variance=v
@@ -328,7 +254,9 @@ def main(args):
         pin_memory=True,
     )
     # Initialises the network
-    model = UNet(channels=len(args.vars))
+    model_name=args.model
+    model = getattr(models,model_name)(channels=len(args.vars),norm=args.norm, noskip=args.noskip, transconv=args.transconv)
+    # model = UNet(channels=len(args.vars),norm=args.norm)
 
     # Defines MSE loss criterion
     criterion = torch.nn.MSELoss()
