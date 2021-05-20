@@ -1,0 +1,26 @@
+log_dir: logs
+learning_rate: 0.005
+adam: False
+beta1: 0.9
+beta2: 0.999
+momentum: 0.9
+balancewind: False
+fixwind: True
+batch_size: 128
+norm: False
+epochs: 3000
+model: UNetSmall
+noskip: False
+transconv: False
+val_frequency: 10
+log_frequency: 10
+print_frequency: 10
+timestep: 1
+samples: 6000
+vars:
+  - Wind
+  - PBLH
+  - Pressure
+  # - Temperature
+  # - Sea_level_pressure
+  
