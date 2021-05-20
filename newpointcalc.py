@@ -15,7 +15,7 @@ import pickle
 import argparse
 
 parser = argparse.ArgumentParser(description='Process some integers.')
-parser.add_argument('--f', metavar='f', type=str, help='the name of the target folder')
+parser.add_argument('--folder', metavar='f', type=str, help='the name of the target folder')
 parser.add_argument('--num', metavar='num', type=str, help='the number of points to load')
 
 parserargs = parser.parse_args()

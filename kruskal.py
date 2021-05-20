@@ -7,8 +7,7 @@ def MSE(preds,truth):
     return ((preds - truth)**2).mean()
 
 parser = argparse.ArgumentParser(description='Process some integers.')
-parser.add_argument('files', metavar='N', type=str, nargs='+',
-                    help='an integer for the accumulator')
+parser.add_argument('files', metavar='N', type=str)
 parserargs = parser.parse_args()
 
 l=parserargs.files
