@@ -47,8 +47,11 @@ for f in os.listdir( str(pathlib.Path(__file__).parent)+"/met"):
 for x in variables:
     met[x]=xr.concat(met[x],"time")
 size=32
-lat=53.32611
-lon=-9.90387
+
+with open("coords.pkl", "rb") as input_file:
+    coords = pickle.load(input_file)
+lat=coords['lat']
+lon=coords['lon']
 x=min(met_data.lat.values, key=lambda x:abs(x-lat))
 x=np.where(met_data.lat.values==x)[0][0]
 y=min(met_data.lon.values, key=lambda x:abs(x-lon))

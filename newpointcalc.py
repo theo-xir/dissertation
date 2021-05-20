@@ -32,12 +32,12 @@ model.eval()
 # max={'xWind': 34.258717, 'yWind': 25.762285, 'PBLH': 4000, 'Pressure': 104437.5}
 # min={'xWind': -23.834251, 'yWind': -26.349575, 'PBLH': 100, 'Pressure': 89379.26}
 # 6000 three years
-mx={'xWind': 34.258717, 'yWind': 27.624998, 'PBLH': 4000, 'Pressure': 105359.5}
-mn={'xWind': -25.324139, 'yWind': -31.531086, 'PBLH': 100, 'Pressure': 87646.14}
-# with open(str(pathlib.Path(__file__).parent)+'/'+parserargs.f+'/max.pkl', 'rb') as f:
-#     mx = pickle.load(f)
-# with open(str(pathlib.Path(__file__).parent)+'/'+parserargs.f+'/min.pkl', 'rb') as f:
-#     mn = pickle.load(f)
+# mx={'xWind': 34.258717, 'yWind': 27.624998, 'PBLH': 4000, 'Pressure': 105359.5}
+# mn={'xWind': -25.324139, 'yWind': -31.531086, 'PBLH': 100, 'Pressure': 87646.14}
+with open(str(pathlib.Path(__file__).parent)+'/'+parserargs.f+'/max.pkl', 'rb') as f:
+    mx = pickle.load(f)
+with open(str(pathlib.Path(__file__).parent)+'/'+parserargs.f+'/min.pkl', 'rb') as f:
+    mn = pickle.load(f)
 start=datetime.now()
 dataset, groundtruth, variance = LoadData.load(int(parserargs.num),balancewind=args.balancewind, fixwind=args.fixwind, variables=["Wind","PBLH", "Pressure"],size=32, readymaxs=mx,readymins=mn,randomise=False)
 loaded=datetime.now()

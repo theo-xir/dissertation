@@ -1,5 +1,4 @@
 import xarray as xr
-import pandas as pd
 import random
 import numpy as np
 import torch 
@@ -46,8 +45,8 @@ def load(num,filename=None, balancewind=False, fixwind=True, variables=["Wind","
         met[x]=xr.concat(met[x],"time")
     fp_data=xr.concat(fp_data,"time")
     # print(fp_data)
-    # fpmin=0.999*np.log10(np.nanmin(fp_data.fp.values[np.nonzero(fp_data.fp.values)]))
-    fpmin=-10
+    fpmin=0.999*np.log10(np.nanmin(fp_data.fp.values[np.nonzero(fp_data.fp.values)]))
+    # fpmin=-10
     # input()
     # print(met_data.time.values)
     x=min(met_data.lat.values, key=lambda x:abs(x-fp_data.release_lat.values[0]))
@@ -114,7 +113,6 @@ def load(num,filename=None, balancewind=False, fixwind=True, variables=["Wind","
         timepoint=times[index]
         times=np.delete(times,index)
         if timepoint not in dates and timepoint not in exclude:
-            dates.append(timepoint)
             sample={}
             if "Wind_Speed" in variables and fixwind:
                 temp=met["Wind_Speed"].sel({"time":timepoint})[x-size:x+size,y-size:y+size].values
@@ -138,6 +136,7 @@ def load(num,filename=None, balancewind=False, fixwind=True, variables=["Wind","
            # ax.contourf(t,levels=51)
             #plt.show()
             if not (np.isnan(list(sample.values())).any() or np.isnan(t).any()):
+                dates.append(timepoint)
                 if "xWind" not in list(sample.keys()) or not balancewind or not (sample["xWind"].mean()>0 and posxwind>=num/2 or sample["xWind"].mean()<=0 and negxwind>=num/2 or sample["yWind"].mean()>0 and posywind>=num/2 or sample["yWind"].mean()<=0 and negywind>=num/2):
                     if len(maxs.values())==0:
                         for k in list(sample.keys()):

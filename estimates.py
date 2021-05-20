@@ -5,6 +5,7 @@ from matplotlib import pyplot as plt
 import matplotlib.lines as mlines
 from statistics import mean
 import argparse
+import pickle
 
 parser = argparse.ArgumentParser(description='Process some integers.')
 parser.add_argument('--folder', metavar='folder', type=str, help='the name of the target folder')
@@ -13,8 +14,11 @@ parserargs = parser.parse_args()
 
 file1 = str(pathlib.Path(__file__).parent)+ "/ch4-ukghg-total_EUROPE_2016.nc"
 data = xr.open_dataset(file1)
-lat=53.32611
-lon=-9.90387
+
+with open("coords.pkl", "rb") as input_file:
+    coords = pickle.load(input_file)
+lat=coords['lat']
+lon=coords['lon']
 x=min(data.lat.values, key=lambda x:abs(x-lat))
 x=np.where(data.lat.values==x)[0][0]
 y=min(data.lon.values, key=lambda x:abs(x-lon))

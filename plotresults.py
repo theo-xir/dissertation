@@ -3,22 +3,19 @@ from matplotlib import pyplot as plt
 import numpy as np
 import argparse
 
-# parser = argparse.ArgumentParser(description='Process some integers.')
-# parser.add_argument('--folder', metavar='folder', type=str, help='the name of the target folder')
+parser = argparse.ArgumentParser(description='Process some integers.')
+parser.add_argument('--folder', metavar='folder', type=str, help='the name of the target folder')
 
-# parserargs = parser.parse_args()
+parserargs = parser.parse_args()
 
-# f=parserargs.folder
-# p=np.load(str(pathlib.Path(__file__).parent)+'/'+f+'/predictions.npy',allow_pickle=True)
-# g=np.load(str(pathlib.Path(__file__).parent)+'/'+f+'/groundtruth.npy',allow_pickle=True)
-
-p = np.load(str(pathlib.Path(__file__).parent)+ "/sanitypredictions.npy")
-g = np.load(str(pathlib.Path(__file__).parent)+ "/sanitygroundtruth.npy")
+f=parserargs.folder
+p=np.load(str(pathlib.Path(__file__).parent)+'/'+f+'/predictions.npy',allow_pickle=True)
+g=np.load(str(pathlib.Path(__file__).parent)+'/'+f+'/groundtruth.npy',allow_pickle=True)
 
 flag=False
 point=0
-rows=4
-columns=6
+rows=1
+columns=2
 while point<len(p):
     for i in range(1,rows*columns,2):
         ax1=plt.subplot(rows,columns, i)

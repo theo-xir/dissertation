@@ -23,7 +23,7 @@ else:
     DEVICE = torch.device("cpu")
 
 
-
+#Code based on the code developed for the Applied Deep Learning unit coursework
 
 
 #Trainer class
@@ -107,11 +107,6 @@ class Trainer:
                 self.step += 1
                 data_load_start_time = time.time()
 
-            #Linearly decrease the learning rate from 0.03 to 0.0001
-            # lr = lr - ((0.03 - 0.0001) /epochs)
-            # for param_group in self.optimizer.param_groups:
-            #     param_group["lr"] = lr
-            
             #Adds information to the summary writter/logger
             self.summary_writer.add_scalar("epoch", epoch, self.step)
 
@@ -188,6 +183,7 @@ class Trainer:
 
         #Calculate and print the average loss in the validation set
         average_loss = total_loss / len(self.val_loader.dataset)
+        #Keeps track of the minimum loss and sets a flag to stop the training process if the loss has not decreased in a while
         if self.minLoss <0:
             self.minLoss=average_loss
             self.minLossEpoch=epoch
@@ -205,7 +201,7 @@ class Trainer:
 
 #Creates a unique sub directory to log this run in
 def get_summary_writer_log_dir(args: argparse.Namespace) -> str:
-    tb_log_dir_prefix = f'CNN_bs={args.batch_size}_lr={args.learning_rate}_momentum={args.momentum}_run_'
+    tb_log_dir_prefix = f'CNN_bs={args.batch_size}_lr={args.learning_rate}_momentum={args.momentum}_samples={args.samples}_run_'
     i = 0
     while i < 1000:
         tb_log_dir = Path(args.log_dir) / (tb_log_dir_prefix + str(i))
@@ -256,12 +252,11 @@ def main(args):
     # Initialises the network
     model_name=args.model
     model = getattr(models,model_name)(channels=len(args.vars),norm=args.norm, noskip=args.noskip, transconv=args.transconv)
-    # model = UNet(channels=len(args.vars),norm=args.norm)
 
     # Defines MSE loss criterion
     criterion = torch.nn.MSELoss()
 
-    # Defines the Stochastic Gradient Descent optimiser with the given learning rate, Nesterov momentum with initial momentum 0.9, and weight decay set to 0.0005 (L2 norm regularisation)
+    # Defines the Stochastic Gradient Descent optimiser with the given learning rate and momentum
     learn = float(args.learning_rate)
     print(model.parameters())
     if not args.adam:
