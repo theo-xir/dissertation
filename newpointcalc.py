@@ -20,15 +20,15 @@ parser.add_argument('--num', metavar='num', type=str, help='the number of points
 
 parserargs = parser.parse_args()
 # print(parserargs)
-with open(str(pathlib.Path(__file__).parent)+'/'+parserargs.f+'/args.yaml') as file:
+with open(str(pathlib.Path(__file__).parent)+'/'+parserargs.folder+'/args.yaml') as file:
     args=Namespace(**yaml.load(file,Loader=yaml.FullLoader))
-model= torch.load(str(pathlib.Path(__file__).parent)+"/"+parserargs.f+"/state_dict_model.pt", map_location=torch.device('cpu'))
+model= torch.load(str(pathlib.Path(__file__).parent)+"/"+parserargs.folder+"/state_dict_model.pt", map_location=torch.device('cpu'))
 model.eval()
 # input()
 #6000
 # mx={'xWind': 34.258717, 'yWind': 31.284176, 'PBLH': 4000, 'Pressure': 104466.3}
 # mn={'xWind': -29.40597, 'yWind': -31.531086, 'PBLH': 100, 'Pressure': 89367.64}  
-#1000
+# 1000
 # max={'xWind': 34.258717, 'yWind': 25.762285, 'PBLH': 4000, 'Pressure': 104437.5}
 # min={'xWind': -23.834251, 'yWind': -26.349575, 'PBLH': 100, 'Pressure': 89379.26}
 # 6000 three years

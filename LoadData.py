@@ -45,8 +45,8 @@ def load(num,filename=None, balancewind=False, fixwind=True, variables=["Wind","
         met[x]=xr.concat(met[x],"time")
     fp_data=xr.concat(fp_data,"time")
     # print(fp_data)
-    fpmin=0.999*np.log10(np.nanmin(fp_data.fp.values[np.nonzero(fp_data.fp.values)]))
-    # fpmin=-10
+    # fpmin=0.999*np.log10(np.nanmin(fp_data.fp.values[np.nonzero(fp_data.fp.values)]))
+    fpmin=-10
     # input()
     # print(met_data.time.values)
     x=min(met_data.lat.values, key=lambda x:abs(x-fp_data.release_lat.values[0]))

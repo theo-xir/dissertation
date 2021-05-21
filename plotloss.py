@@ -5,13 +5,13 @@ import argparse
 from matplotlib import pyplot as plt
 
 parser = argparse.ArgumentParser(description='Process some integers.')
-parser.add_argument('files', metavar='N', type=str)
+parser.add_argument('files', metavar='N', type=str, nargs='+')
 parser.add_argument('--train', dest='train', action='store_true')
 parser.add_argument('--test', dest='test', action='store_true')
 parserargs = parser.parse_args()
 
 l=parserargs.files
-
+print(l)
 box_pts=5
 legend=[]
 if parserargs.test:
