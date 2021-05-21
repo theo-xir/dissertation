@@ -34,9 +34,9 @@ model.eval()
 # 6000 three years
 # mx={'xWind': 34.258717, 'yWind': 27.624998, 'PBLH': 4000, 'Pressure': 105359.5}
 # mn={'xWind': -25.324139, 'yWind': -31.531086, 'PBLH': 100, 'Pressure': 87646.14}
-with open(str(pathlib.Path(__file__).parent)+'/'+parserargs.f+'/max.pkl', 'rb') as f:
+with open(str(pathlib.Path(__file__).parent)+'/'+parserargs.folder+'/max.pkl', 'rb') as f:
     mx = pickle.load(f)
-with open(str(pathlib.Path(__file__).parent)+'/'+parserargs.f+'/min.pkl', 'rb') as f:
+with open(str(pathlib.Path(__file__).parent)+'/'+parserargs.folder+'/min.pkl', 'rb') as f:
     mn = pickle.load(f)
 start=datetime.now()
 dataset, groundtruth, variance = LoadData.load(int(parserargs.num),balancewind=args.balancewind, fixwind=args.fixwind, variables=["Wind","PBLH", "Pressure"],size=32, readymaxs=mx,readymins=mn,randomise=False)
